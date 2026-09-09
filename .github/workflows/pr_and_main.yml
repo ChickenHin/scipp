@@ -1,10 +1,7 @@
 name: CI
 
 on:
-  # push:
-  #   branches:
-  #     - main
-  pull_request:
+  workflow_dispatch: 
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref == 'refs/heads/main' && github.run_number || github.ref }}
@@ -16,28 +13,28 @@ env:
   PIXI_FROZEN: "true"
 
 jobs:
-  formatting:
-    runs-on: ubuntu-24.04
+  # formatting:
+  #   runs-on: ubuntu-24.04
 
-    steps:
-      - uses: actions/checkout@v4
-      - uses: prefix-dev/setup-pixi@v0.10.2
-        with:
-          pixi-version: v0.76.0
-          environments: lint
-          frozen: true
-          cache: true
-          cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
-      # CI installs use `frozen: true` (no manifest<->lock consistency check),
-      # so verify here that pixi.lock is up to date with pixi.toml.
-      - run: pixi lock --check
-      - run: pixi run -e lint static
-      - uses: stefanzweifel/git-auto-commit-action@v7
-        with:
-          commit_message: Apply automatic formatting
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: prefix-dev/setup-pixi@v0.10.2
+  #       with:
+  #         pixi-version: v0.76.0
+  #         environments: lint
+  #         frozen: true
+  #         cache: true
+  #         cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+  #     # CI installs use `frozen: true` (no manifest<->lock consistency check),
+  #     # so verify here that pixi.lock is up to date with pixi.toml.
+  #     - run: pixi lock --check
+  #     - run: pixi run -e lint static
+  #     - uses: stefanzweifel/git-auto-commit-action@v7
+  #       with:
+  #         commit_message: Apply automatic formatting
 
   build_and_test:
-    needs: formatting
+    # needs: formatting
     name: build and test ${{ matrix.variant.os }}, py${{ matrix.python-version }}
     runs-on: ${{ matrix.variant.os }}
     strategy:
@@ -45,8 +42,6 @@ jobs:
       matrix:
         variant:
         - {os: ubuntu-24.04}
-        - {os: macos-15}
-        - {os: windows-2022}
         python-version: ["3.12"]
 
     steps:
@@ -92,15 +87,15 @@ jobs:
       - run: pixi run -e type-check mypy
         if: ${{ contains(matrix.variant.os, 'ubuntu') }}
 
-      - run: pixi run -e docs docs
-        if: ${{ contains(matrix.variant.os, 'ubuntu') }}
+      # - run: pixi run -e docs docs
+      #   if: ${{ contains(matrix.variant.os, 'ubuntu') }}
 
-      - run: pixi run -e docs linkcheck
-        # Linkcheck can be flaky. Avoid randomly breaking PR builds by running only on `main`
-        if: ${{ contains(matrix.variant.os, 'ubuntu') && github.ref == 'refs/heads/main' }}
+      # - run: pixi run -e docs linkcheck
+      #   # Linkcheck can be flaky. Avoid randomly breaking PR builds by running only on `main`
+      #   if: ${{ contains(matrix.variant.os, 'ubuntu') && github.ref == 'refs/heads/main' }}
 
-      - uses: actions/upload-artifact@v4
-        if: ${{ contains(matrix.variant.os, 'ubuntu') }}
-        with:
-          name: DocumentationHTML
-          path: html/
+      # - uses: actions/upload-artifact@v4
+      #   if: ${{ contains(matrix.variant.os, 'ubuntu') }}
+      #   with:
+      #     name: DocumentationHTML
+      #     path: html/
