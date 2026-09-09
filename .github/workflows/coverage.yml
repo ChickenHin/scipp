@@ -1,8 +1,8 @@
 name: C++ and Python coverage
 
 on:
-  schedule:
-    - cron: "0 0 * * 0"
+  # schedule:
+  #   - cron: "0 0 * * 0"
   workflow_dispatch:
 
 env:
@@ -47,19 +47,19 @@ jobs:
           pixi run -e dev -- cmake --build --preset coverage
           mv build/coverage coverage_html/cpp
 
-      - name: Python coverage
-        run: |
-          pixi run -e test coverage
-          rm -f coverage_html/python/.gitignore
+      # - name: Python coverage
+      #   run: |
+      #     pixi run -e test coverage
+      #     rm -f coverage_html/python/.gitignore
 
-      - name: Setup HTML
-        run: mv tools/scipp-coverage-index.html coverage_html/index.html
+      # - name: Setup HTML
+      #   run: mv tools/scipp-coverage-index.html coverage_html/index.html
 
-      - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@v4.9.0
-        with:
-          repository-name: scipp/scipp-coverage
-          branch: main
-          folder: coverage_html
-          single-commit: true
-          ssh-key: ${{ secrets.COVERAGE_DEPLOY_KEY }}
+      # - name: Deploy
+      #   uses: JamesIves/github-pages-deploy-action@v4.9.0
+      #   with:
+      #     repository-name: scipp/scipp-coverage
+      #     branch: main
+      #     folder: coverage_html
+      #     single-commit: true
+      #     ssh-key: ${{ secrets.COVERAGE_DEPLOY_KEY }}
